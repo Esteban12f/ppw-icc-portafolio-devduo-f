@@ -1,0 +1,51 @@
+<div class="max-w-5xl mx-auto px-6 py-16">
+  <app-button variant="secondary" (click)="regresar()" class="mb-8 inline-block cursor-pointer">
+    &larr; {{ textoBoton }}
+  </app-button>
+
+  @if (proyecto) {
+  <header class="mb-12">
+    <span class="text-cyan-400 font-bold uppercase tracking-widest text-sm">{{ proyecto.Tipo_proyecto }}</span>
+    <h1 class="text-5xl font-bold mt-2 mb-6">{{ proyecto.Titulo }}</h1>
+    <img [src]="'http://localhost:1337' + proyecto.Imagen.url" [alt]="proyecto.Titulo"
+      class="w-full h-96 object-cover rounded-3xl mb-6 shadow-xl">
+  </header>
+
+  <div class="grid md:grid-cols-3 gap-12">
+    <div class="md:col-span-2">
+      <h2 class="text-2xl font-bold mb-4">Descripción del Proyecto</h2>
+      <p class="text-slate-400 leading-relaxed text-lg whitespace-pre-line">
+        {{ obtenerTexto(proyecto.Descripcion_completa) }}
+      </p>
+    </div>
+
+    <app-card class="self-start">
+      <h3 class="font-bold mb-4">Tecnologías</h3>
+      <div class="flex flex-wrap gap-2 mb-8">
+        @for (tech of proyecto.Tecnologias; track tech) {
+        <span class="bg-slate-800 text-cyan-300 px-3 py-1 rounded-lg text-sm">{{ tech }}</span>
+        }
+      </div>
+
+      <div class="flex flex-col gap-3">
+        @if (proyecto.Enlace_repo) {
+        <a [href]="proyecto.Enlace_repo" target="_blank" class="block w-full">
+          <app-button variant="secondary" class="w-full">
+            Ver Repositorio
+          </app-button>
+        </a>
+        }
+        @if (proyecto.Enlace_demo) {
+        <a [href]="proyecto.Enlace_demo" target="_blank" class="block w-full">
+          <app-button variant="secondary" class="w-full">
+            Ver Demo
+          </app-button>
+        </a>
+        }
+      </div>
+    </app-card>
+  </div>
+  } @else {
+  <div class="text-center py-20 text-slate-500">No existen datos del proyecto</div>
+  }
+</div>

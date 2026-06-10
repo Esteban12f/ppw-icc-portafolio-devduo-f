@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ══════════════════════════════════════════════════════════════
+    //  FUNCIONES DE SEGURIDAD (Capa de abstracción)
+    // ══════════════════════════════════════════════════════════════
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Verifica si el UID del token coincide con el campo userId del documento
+    function esDuenio(data) {
+      return isAuthenticated() && request.auth.uid == data.userId;
+    }
+
+    // Verifica el rol de programador (Vía Script de Custom Claims)
+    function esProgramador() {
+      return isAuthenticated() && request.auth.token.role == 'programador';
+    }
+
+    // Verifica el rol por Email (Respaldo inmediato si el script no se ha ejecutado)
+    function esProgramadorPorEmail() {
+      return isAuthenticated() && request.auth.token.email in [
+        'joehv33@gmail.com',
+        'alexpaucar.887@gmail.com'
+      ];
+    }
+
+    // Comprueba si el usuario es un programador por cualquiera de los dos métodos
+    function esCualquierProgramador() {
+      return esProgramador() || esProgramadorPorEmail();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  COLECCIÓN: solicitudes
+    // ══════════════════════════════════════════════════════════════
+    
+    match /solicitudes/{solicitudId} {
+
+      // LECTURA: El cliente ve las suyas, el programador ve todas.
+      allow read: if esDuenio(resource.data) || esCualquierProgramador();
+
+      // CREACIÓN: 
+      // 1. Debe estar logueado.
+      // 2. No puede suplantar identidad (su UID debe ser el userId).
+      // 3. El estado DEBE empezar como 'Pendiente'.
+      // 4. Debe enviar los campos obligatorios.
+      allow create: if isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.estado == 'Pendiente' &&
+        request.resource.data.keys().hasAll(['nombre', 'proyecto', 'userId', 'estado', 'fecha', 'programadorEmail']);
+
+      // ACTUALIZACIÓN (La parte más robusta):
+      allow update: if isAuthenticated() && (
+        // Caso A: El programador gestiona la solicitud
+        (esCualquierProgramador() && 
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'observacion', 'updatedAt'])) 
+        || 
+        // Caso B: El dueño corrige algo (pero NO puede tocar el estado ni la observación)
+        (esDuenio(resource.data) && 
+         !request.resource.data.diff(resource.data).affectedKeys().hasAny(['estado', 'observacion', 'userId']))
+      );
+
+      // ELIMINACIÓN: Nadie borra nada.
+      allow delete: if false;
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  COLECCIÓN: userRoles (Seguridad preventiva)
+    // ══════════════════════════════════════════════════════════════
+    match /userRoles/{userId} {
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow write: if false; // Solo se gestiona desde el servidor/scripts
+    }
+  }
+}

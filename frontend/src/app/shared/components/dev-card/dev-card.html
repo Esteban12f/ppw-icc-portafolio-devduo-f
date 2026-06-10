@@ -1,0 +1,28 @@
+<div
+    class="bg-slate-950/60 border border-slate-800 rounded-2xl p-8 backdrop-blur-md hover:border-cyan-500 transition-all flex flex-col items-center text-center h-full">
+
+    @if (dev.Foto_perfil?.url) {
+    <img [src]="'http://localhost:1337' + dev.Foto_perfil.url" class="w-24 h-24 rounded-full mb-4 object-cover">
+    } @else {
+    <div class="w-24 h-24 bg-slate-800 rounded-full mb-4 flex items-center justify-center text-slate-500">
+        <span class="text-2xl">{{ dev.Nombre.charAt(0) }}</span>
+    </div>
+    }
+
+    <h3 class="text-2xl font-semibold mb-1">{{ dev.Nombre }}</h3>
+    <p class="text-cyan-400 mb-2 font-medium">{{ dev.Especialidad }}</p>
+    <p class="text-slate-400 text-sm mb-4 italic">{{ dev.Descripcion }}</p>
+
+    <div class="flex gap-4 mb-6">
+        @if (dev.Correo_contacto) { <a [href]="'mailto:' + dev.Correo_contacto"
+            class="text-slate-400 hover:text-white transition-colors text-sm">Correo</a> }
+        @if (dev.Redes_sociales?.github) { <a [href]="dev.Redes_sociales.github" target="_blank"
+            class="text-slate-400 hover:text-white text-sm">GitHub</a> }
+        @if (dev.Redes_sociales?.linkedin) { <a [href]="dev.Redes_sociales.linkedin" target="_blank"
+            class="text-slate-400 hover:text-white text-sm">LinkedIn</a> }
+    </div>
+
+    <app-button [routerLink]="['/profile', dev.Slug]" variant="secondary" class="w-full">
+        Ver detalle
+    </app-button>
+</div>

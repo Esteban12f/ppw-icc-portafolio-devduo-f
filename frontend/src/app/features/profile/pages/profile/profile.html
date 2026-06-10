@@ -1,0 +1,37 @@
+<main class="bg-slate-950 text-white min-h-screen py-24">
+  <div class="max-w-4xl mx-auto px-6">
+    
+    <app-button variant="secondary" routerLink="/" class="mb-8 inline-block">
+      &larr; Volver al inicio
+    </app-button>
+
+    @if (programador) {
+    <article>
+      <div class="flex flex-col md:flex-row gap-8 mb-16">
+        <div class="w-40 h-40 rounded-full bg-slate-800 shrink-0 overflow-hidden">
+          @if (programador.Foto_perfil?.url) {
+          <img [src]="'http://localhost:1337' + programador.Foto_perfil.url" [alt]="programador.Nombre"
+            class="w-full h-full object-cover">
+          }
+        </div>
+        <div>
+          <h1 class="text-5xl font-bold mb-2">{{ programador.Nombre }}</h1>
+          <p class="text-cyan-400 text-xl mb-6">{{ programador.Especialidad }}</p>
+          <p class="text-slate-400 leading-relaxed text-lg">{{ obtenerTextoCompleto(programador.Descripcion_completa) }}
+          </p>
+        </div>
+      </div>
+
+      <h3 class="text-2xl font-bold mb-8">Proyectos</h3>
+      
+      <div class="grid md:grid-cols-2 gap-6">
+        @for (proyecto of programador.proyectos; track proyecto.id) {
+          <app-project-card [proyecto]="proyecto"></app-project-card>
+        }
+      </div>
+    </article>
+    } @else {
+    <div class="text-center py-20">Programador no encontrado.</div>
+    }
+  </div>
+</main>

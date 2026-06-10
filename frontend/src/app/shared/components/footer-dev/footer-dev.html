@@ -1,0 +1,8 @@
+<div>
+    <p class="font-bold text-slate-200">{{ name }}</p>
+    <p>Email: <a [href]="'mailto:' + email" class="hover:text-cyan-400">{{ email }}</a></p>
+    <div class="flex gap-3 mt-1">
+        <a [href]="github" target="_blank" class="hover:text-cyan-400">GitHub</a>
+        <a [href]="linkedin" target="_blank" class="hover:text-cyan-400">LinkedIn</a>
+    </div>
+</div>

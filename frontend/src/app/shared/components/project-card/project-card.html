@@ -1,0 +1,32 @@
+<app-card class="block h-full">
+    <div class="w-full h-48 bg-slate-800 rounded-lg mb-4 overflow-hidden">
+        @if (proyecto.Imagen?.url) {
+        <img [src]="'http://localhost:1337' + proyecto.Imagen.url" [alt]="proyecto.Titulo"
+            class="w-full h-full object-cover">
+        } @else {
+        <div class="w-full h-full flex items-center justify-center text-slate-600">Sin imagen</div>
+        }
+    </div>
+    <div class="grow">
+        <h3 class="text-2xl font-semibold mb-2">{{ proyecto.Titulo }}</h3>
+        <p class="text-slate-400 mb-4">{{ proyecto.Descripcion_breve }}</p>
+
+        <div class="flex flex-wrap gap-2 mb-6">
+            @for (tech of getTecnologiasVisibles(); track tech) {
+            <span class="bg-cyan-950 text-cyan-400 px-3 py-1 rounded-full text-xs font-medium border border-cyan-900">
+                {{ tech }}
+            </span>
+            }
+
+            @if (proyecto.Tecnologias?.length > 3) {
+            <span
+                class="bg-slate-800 text-slate-400 px-3 py-1 rounded-full text-xs font-medium border border-slate-700">
+                +{{ getTecnologiasRestantes() }}
+            </span>
+            }
+        </div>
+    </div>
+    <app-button [routerLink]="['/proyecto', proyecto.Slug]" variant="secondary" class="w-full block">
+        Ver detalle
+    </app-button>
+</app-card>

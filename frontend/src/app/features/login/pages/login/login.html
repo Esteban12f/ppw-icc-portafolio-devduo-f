@@ -1,0 +1,136 @@
+<main class="grow flex items-center justify-center p-6 min-h-screen bg-slate-950">
+    <app-card class="w-full max-w-lg block" [hoverable]="false">
+        <div class="w-full p-8 md:p-12">
+
+            <div class="flex border-b border-slate-800 mb-10 relative">
+                <button (click)="activeTab = ('login')" [class.text-white]="activeTab === 'login'"
+                    class="flex-1 pb-4 font-bold text-slate-500 transition-all relative">
+                    Iniciar Sesión
+                    @if (activeTab === 'login') {
+                    <div
+                        class="absolute bottom-0 left-0 w-full h-0.5 bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]">
+                    </div>
+                    }
+                </button>
+                <button (click)="activeTab = ('register')" [class.text-white]="activeTab === 'register'"
+                    class="flex-1 pb-4 font-bold text-slate-500 transition-all relative">
+                    Registrarse
+                    @if (activeTab === 'register') {
+                    <div
+                        class="absolute bottom-0 left-0 w-full h-0.5 bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]">
+                    </div>
+                    }
+                </button>
+            </div>
+
+            @if (activeTab === 'login') {
+            <div class="animate-fade-in">
+                <h2 class="text-3xl font-bold mb-8 text-white">Bienvenido de nuevo</h2>
+
+                <form #loginForm="ngForm" class="flex flex-col gap-6" (ngSubmit)="handleAuth()">
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-slate-400 uppercase tracking-wider ml-1">Correo
+                            Electrónico</label>
+                        <input name="email" type="email" [(ngModel)]="loginData.email" #loginEmail="ngModel" required
+                            email (ngModelChange)="emailError = null"
+                            [class.border-red-500]="(loginEmail.invalid && loginEmail.touched) || emailError"
+                            class="w-full bg-slate-950 border-2 border-slate-800 rounded-xl px-4 py-3.5 outline-none text-white focus:border-cyan-500" />
+
+                        @if ((loginEmail.invalid && loginEmail.touched) || emailError) {
+                        <span class="text-xs text-red-500 ml-1">{{ emailError || 'Correo inválido.' }}</span>
+                        }
+                    </div>
+
+                    <div class="space-y-2">
+                        <label
+                            class="block text-sm font-semibold text-slate-400 uppercase tracking-wider ml-1">Contraseña</label>
+                        <input name="password" type="password" [(ngModel)]="loginData.password" #loginPass="ngModel"
+                            required minlength="6" (ngModelChange)="passError = null"
+                            [class.border-red-500]="(loginPass.invalid && loginPass.touched) || passError"
+                            class="w-full bg-slate-950 border-2 border-slate-800 rounded-xl px-4 py-3.5 outline-none text-white focus:border-cyan-500" />
+
+                        @if ((loginPass.invalid && loginPass.touched) || passError) {
+                        <span class="text-xs text-red-500 ml-1">{{ passError || 'Mínimo 6 caracteres.' }}</span>
+                        }
+                    </div>
+
+                    <app-button type="submit" [class.opacity-50]="loginForm.invalid"
+                        [style.pointer-events]="loginForm.invalid ? 'none' : 'auto'">
+                        Ingresar
+                    </app-button>
+                </form>
+
+                <div class="mt-8">
+                    <div
+                        class="relative flex items-center justify-center text-sm mb-6 text-slate-500 before:border-t before:border-slate-800 before:grow before:mr-4 after:border-t after:border-slate-800 after:grow after:ml-4">
+                        O continuar con</div>
+
+                    <app-button variant="secondary" (click)="loginWithGoogle()">
+                        <div class="flex items-center justify-center gap-3">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" class="w-5 h-5"
+                                alt="Google">
+                            <span class="font-semibold">Google</span>
+                        </div>
+                    </app-button>
+                </div>
+            </div>
+            }
+
+            @if (activeTab === 'register') {
+            <div class="animate-fade-in">
+                <h2 class="text-3xl font-bold mb-8 text-white">Nueva Identidad</h2>
+                <form #regForm="ngForm" class="flex flex-col gap-5" (ngSubmit)="handleAuth()">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-slate-400 uppercase tracking-wider ml-1">Correo
+                            Electrónico</label>
+                        <input name="regEmail" (ngModelChange)="authError = null" type="email"
+                            [(ngModel)]="regData.email" #regEmail="ngModel" required email
+                            placeholder="cliente@empresa.com"
+                            [class.border-red-500]="regEmail.invalid && regEmail.touched"
+                            class="w-full bg-slate-950 border-2 border-slate-800 rounded-xl px-4 py-3.5 outline-none text-white focus:border-cyan-500" />
+                        @if (regEmail.invalid && regEmail.touched) {
+                        <span class="text-xs text-red-500 ml-1">Correo inválido.</span>
+                        }
+                    </div>
+
+                    <div class="space-y-2">
+                        <label
+                            class="block text-sm font-semibold text-slate-400 uppercase tracking-wider ml-1">Contraseña</label>
+                        <input name="regPassword" (ngModelChange)="authError = null" type="password"
+                            [(ngModel)]="regData.password" #regPass="ngModel" required
+                            pattern="(?=.*\d)(?=.*[A-Z]).{6,}" placeholder="Mín. 6 chars, 1 Mayús, 1 Num"
+                            [class.border-red-500]="regPass.invalid && regPass.touched"
+                            class="w-full bg-slate-950 border-2 border-slate-800 rounded-xl px-4 py-3.5 outline-none text-white focus:border-cyan-500" />
+                        @if (regPass.invalid && regPass.touched) {
+                        <span class="text-xs text-red-500 ml-1">Debe tener al menos 6 caracteres, una mayúscula y un
+                            número.</span>
+                        }
+                    </div>
+
+                    <div class="space-y-2">
+                        <label
+                            class="block text-sm font-semibold text-slate-400 uppercase tracking-wider ml-1">Confirmar
+                            Contraseña</label>
+                        <input name="regConfirm" (ngModelChange)="authError = null" type="password"
+                            [(ngModel)]="regData.confirmPassword" #regConf="ngModel" required
+                            placeholder="Repetir contraseña"
+                            [class.border-red-500]="regData.confirmPassword !== regData.password && regConf.touched"
+                            class="w-full bg-slate-950 border-2 border-slate-800 rounded-xl px-4 py-3.5 outline-none text-white focus:border-cyan-500" />
+                        @if (regData.confirmPassword !== regData.password && regConf.touched) {
+                        <span class="text-xs text-red-500 ml-1">Las contraseñas no coinciden.</span>
+                        }
+                    </div>
+
+                    <app-button type="submit"
+                        [class.opacity-50]="regForm.invalid || regData.confirmPassword !== regData.password"
+                        [class.cursor-not-allowed]="regForm.invalid || regData.confirmPassword !== regData.password"
+                        [style.pointer-events]="(regForm.invalid || regData.confirmPassword !== regData.password) ? 'none' : 'auto'">
+                        Crear Cuenta
+                    </app-button>
+                </form>
+            </div>
+            }
+        </div>
+    </app-card>
+</main>

@@ -1,0 +1,32 @@
+<footer class="border-t border-slate-800 bg-slate-950 py-12">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-8">
+        <div>
+            <div class="text-2xl font-bold text-cyan-400 tracking-tight">DevDuo</div>
+            <p class="text-sm text-slate-500 mt-4">© 2026 DevDuo Architectural Solutions. <br> Todos los derechos reservados.</p>
+        </div>
+
+        <div class="flex flex-col gap-3 text-slate-400">
+            <h4 class="text-white font-semibold mb-2">Navegación</h4>
+            <a routerLink="/" class="hover:text-cyan-400 transition-colors">Home</a>
+            <a routerLink="/" fragment="programadores" class="hover:text-cyan-400 transition-colors">Programadores</a>
+            <a routerLink="/" fragment="proyectos" class="hover:text-cyan-400 transition-colors">Proyectos</a>
+        </div>
+
+        <div class="text-slate-400 text-sm space-y-4">
+            <h4 class="text-white font-semibold mb-2">Contacto</h4>
+            <app-footer-dev 
+                name="Esteban Hernandez" 
+                email="joehv33@gmail.com" 
+                github="https://github.com/Esteban12f" 
+                linkedin="https://www.linkedin.com/in/hernandez-esteban-53217b379">
+            </app-footer-dev>
+            
+            <app-footer-dev 
+                name="Alexander Paucar" 
+                email="alexpaucar.887@gmail.com" 
+                github="https://github.com/alekspaucar" 
+                linkedin="https://www.linkedin.com/in/alexander-paucar-2a4568295/">
+            </app-footer-dev>
+        </div>
+    </div>
+</footer>

@@ -1,0 +1,285 @@
+<main class="grow w-full max-w-5xl mx-auto px-4 sm:px-6 py-10 md:py-16 relative z-10">
+
+  <!-- ── Cabecera ────────────────────────────────────────────────────────────── -->
+  <header class="mb-8 md:mb-12">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <h1 class="text-3xl md:text-5xl font-bold text-white mb-2">
+          Centro de <span class="text-cyan-400">Solicitudes</span>
+        </h1>
+        <p class="text-slate-400 text-sm md:text-base max-w-xl">
+          @if (isProgramador()) {
+            Gestión de solicitudes recibidas de clientes y usuarios.
+          } @else {
+            Historial de solicitudes enviadas a los programadores.
+          }
+        </p>
+      </div>
+
+      <!-- Badge de rol + botón nueva solicitud (solo usuarios externos) -->
+      <div class="flex items-center gap-3 shrink-0">
+        @if (isProgramador()) {
+          <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-cyan-500/15 text-cyan-400 border border-cyan-500/25">
+            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+            Vista Programador
+          </span>
+        } @else {
+          <app-button variant="primary" routerLink="/requests/nueva">
+            + Nueva Solicitud
+          </app-button>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Contenido principal ──────────────────────────────────────────────── -->
+  @if (isLoading()) {
+    <div class="flex flex-col items-center justify-center py-24 gap-4">
+      <div class="w-10 h-10 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin"></div>
+      <p class="text-slate-400 text-sm">Cargando solicitudes...</p>
+    </div>
+
+  } @else if (solicitudes().length === 0) {
+    <div class="text-center py-20 bg-slate-900/50 rounded-2xl border border-dashed border-slate-700">
+      <div class="text-5xl mb-4"></div>
+      <h3 class="text-xl font-bold text-white mb-2">
+        @if (isProgramador()) { No tienes solicitudes recibidas } @else { No tienes solicitudes aún }
+      </h3>
+      <p class="text-slate-400 mb-6 text-sm max-w-xs mx-auto">
+        @if (!isProgramador()) {
+          Haz clic en "Nueva Solicitud" para contactar a uno de nuestros programadores.
+        }
+      </p>
+    </div>
+
+  } @else {
+
+    <!-- ── VISTA MÓVIL: Cards (visible en sm y abajo) ───────────────────── -->
+    <div class="md:hidden space-y-3">
+      @for (item of solicitudes(); track item.id) {
+        <button
+          (click)="openDetalle(item)"
+          class="w-full text-left bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 rounded-2xl p-4 transition-all group">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="min-w-0">
+              <p class="font-semibold text-white text-sm truncate">{{ item.proyecto }}</p>
+              <p class="text-xs text-slate-400 mt-0.5">{{ item.nombre }}</p>
+            </div>
+            <span class="shrink-0 text-xs px-2.5 py-1 rounded-full font-medium {{ getEstadoClasses(item.estado) }}">
+              {{ item.estado }}
+            </span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-500">
+            <span>
+              @if (isProgramador()) {
+                ✉️ {{ item.correo }}
+              } @else {
+                👨‍💻 {{ item.programador }}
+              }
+            </span>
+            <span>{{ item.fecha }}</span>
+          </div>
+          <!-- Indicador de respuesta del programador -->
+          @if (item.observacion && !isProgramador()) {
+            <div class="mt-2 pt-2 border-t border-slate-800 flex items-center gap-1.5">
+              <span class="text-xs text-cyan-400">Hay una respuesta del programador</span>
+            </div>
+          }
+        </button>
+      }
+    </div>
+
+    <!-- ── VISTA DESKTOP: Tabla (visible en md y arriba) ────────────────── -->
+    <div class="hidden md:block bg-slate-900/30 backdrop-blur-sm border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+      <table class="w-full text-left">
+        <thead class="bg-slate-800/50">
+          <tr class="text-slate-400 text-xs uppercase tracking-wider">
+            <th class="py-4 px-5">Fecha</th>
+            <th class="py-4 px-5">Proyecto</th>
+            <th class="py-4 px-5">Solicitante</th>
+            @if (isProgramador()) {
+              <th class="py-4 px-5">Correo</th>
+            } @else {
+              <th class="py-4 px-5">Programador</th>
+            }
+            <th class="py-4 px-5 text-center">Estado</th>
+            <th class="py-4 px-5 text-center">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of solicitudes(); track item.id) {
+            <tr class="border-t border-slate-800 hover:bg-slate-800/30 transition-colors cursor-pointer"
+              (click)="openDetalle(item)">
+              <td class="py-4 px-5 text-sm text-slate-400">{{ item.fecha }}</td>
+              <td class="py-4 px-5">
+                <p class="font-semibold text-white text-sm">{{ item.proyecto }}</p>
+              </td>
+              <td class="py-4 px-5 text-sm text-slate-300">{{ item.nombre }}</td>
+              @if (isProgramador()) {
+                <td class="py-4 px-5 text-sm text-slate-400">{{ item.correo }}</td>
+              } @else {
+                <td class="py-4 px-5 text-sm text-slate-300">{{ item.programador }}</td>
+              }
+              <td class="py-4 px-5 text-center">
+                <span class="text-xs px-3 py-1 rounded-full font-medium {{ getEstadoClasses(item.estado) }}">
+                  {{ item.estado }}
+                </span>
+              </td>
+              <td class="py-4 px-5 text-center">
+                <button class="text-xs text-cyan-400 hover:text-cyan-300 font-semibold underline underline-offset-2">
+                  @if (isProgramador()) { Gestionar } @else { Ver detalle }
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</main>
+
+
+<!-- ════════════════════════════════════════════════════════════════════
+     MODAL DE DETALLE / GESTIÓN DE SOLICITUD
+     ════════════════════════════════════════════════════════════════════ -->
+@if (selectedSolicitud()) {
+  <!-- Overlay -->
+  <div
+    class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-sm"
+    (click)="closeDetalle()">
+
+    <!-- Panel del modal (click en el panel no cierra) -->
+    <div
+      class="w-full sm:max-w-2xl bg-slate-900 border border-slate-700 sm:rounded-3xl rounded-t-3xl shadow-2xl max-h-[92dvh] overflow-y-auto"
+      (click)="$event.stopPropagation()">
+
+      <!-- Header del modal -->
+      <div class="flex items-start justify-between p-5 sm:p-7 border-b border-slate-800">
+        <div>
+          <h2 class="text-lg font-bold text-white">{{ selectedSolicitud()!.proyecto }}</h2>
+          <p class="text-sm text-slate-400 mt-1">{{ selectedSolicitud()!.nombre }} · {{ selectedSolicitud()!.fecha }}</p>
+        </div>
+        <button
+          (click)="closeDetalle()"
+          class="ml-4 shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors">
+          ✕
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-7 space-y-5">
+
+        <!-- Datos del solicitante -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-slate-800/40 rounded-xl p-4">
+            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Solicitante</p>
+            <p class="text-sm text-white font-medium">{{ selectedSolicitud()!.nombre }}</p>
+            <p class="text-xs text-slate-400 mt-0.5">{{ selectedSolicitud()!.correo }}</p>
+          </div>
+          <div class="bg-slate-800/40 rounded-xl p-4">
+            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Programador</p>
+            <p class="text-sm text-white font-medium">{{ selectedSolicitud()!.programador }}</p>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="bg-slate-800/40 rounded-xl p-4">
+          <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Descripción del Proyecto</p>
+          <p class="text-sm text-slate-200 leading-relaxed">{{ selectedSolicitud()!.descripcion }}</p>
+        </div>
+
+        <!-- ─── VISTA PROGRAMADOR: Formulario de gestión ──────────────── -->
+        @if (isProgramador()) {
+
+          <!-- Selector de Estado -->
+          <div>
+            <p class="text-xs text-slate-500 uppercase tracking-wider mb-3">Cambiar Estado</p>
+            <div class="flex gap-2">
+              @for (estado of ['Pendiente', 'Aprobado', 'Denegado']; track estado) {
+                <button
+                  (click)="editEstado.set($any(estado))"
+                  class="flex-1 py-2 rounded-xl text-sm font-semibold transition-all {{ getEstadoButtonClasses(estado, editEstado()) }}">
+                  @if (estado === 'Aprobado')  { }
+                  @if (estado === 'Pendiente') { }
+                  @if (estado === 'Denegado')  { }
+                  {{ estado }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Observación / Respuesta -->
+          <div class="space-y-2">
+            <label class="block text-xs text-slate-500 uppercase tracking-wider">
+              Observación / Respuesta para el cliente
+            </label>
+            <textarea
+              [ngModel]="editObservacion()"
+              (ngModelChange)="editObservacion.set($event)"
+              placeholder="Escribe aquí tu respuesta o comentarios para el solicitante..."
+              rows="4"
+              class="w-full bg-slate-950 border-2 border-slate-800 focus:border-cyan-500 rounded-xl px-4 py-3 text-sm text-white outline-none transition-all resize-none">
+            </textarea>
+          </div>
+
+          <!-- Feedback de guardado -->
+          @if (saveSuccess()) {
+            <div class="flex items-center gap-2 text-green-400 text-sm animate-pulse">
+              <span></span> <span>Cambios guardados correctamente.</span>
+            </div>
+          }
+
+          <!-- Botones de acción -->
+          <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            <button
+              (click)="guardarCambios()"
+              [disabled]="isSaving()"
+              class="flex-1 py-3 rounded-xl bg-linear-to-r from-blue-600 to-cyan-500 hover:opacity-90 text-white font-bold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              @if (isSaving()) { Guardando... } @else { Guardar Cambios }
+            </button>
+            <button
+              (click)="closeDetalle()"
+              class="flex-1 sm:flex-initial sm:px-6 py-3 rounded-xl border border-slate-700 hover:border-slate-600 text-slate-300 font-semibold text-sm transition-all">
+              Cancelar
+            </button>
+          </div>
+
+        }
+        <!-- ─── VISTA USUARIO EXTERNO: Solo lectura ──────────────────── -->
+        @else {
+
+          <!-- Estado actual -->
+          <div class="flex items-center justify-between bg-slate-800/40 rounded-xl p-4">
+            <p class="text-xs text-slate-500 uppercase tracking-wider">Estado actual</p>
+            <span class="text-sm px-3 py-1.5 rounded-full font-semibold {{ getEstadoClasses(selectedSolicitud()!.estado) }}">
+              {{ selectedSolicitud()!.estado }}
+            </span>
+          </div>
+
+          <!-- Respuesta del programador -->
+          <div class="bg-slate-800/40 rounded-xl p-4">
+            <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">
+              Respuesta del Programador
+            </p>
+            @if (selectedSolicitud()!.observacion) {
+              <p class="text-sm text-slate-200 leading-relaxed italic">
+                "{{ selectedSolicitud()!.observacion }}"
+              </p>
+            } @else {
+              <p class="text-sm text-slate-500 italic">
+                El programador aún no ha respondido esta solicitud.
+              </p>
+            }
+          </div>
+
+          <div class="flex justify-end pt-2">
+            <button
+              (click)="closeDetalle()"
+              class="px-6 py-2.5 rounded-xl border border-slate-700 hover:border-slate-500 text-slate-300 font-semibold text-sm transition-all">
+              Cerrar
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
