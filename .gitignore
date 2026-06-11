@@ -70,3 +70,4 @@ node_modules/
 
 scripts/serviceAccountKey.json
 frontend/src/environments/environment.development.ts
+frontend/src/environments/environment.ts
